@@ -378,6 +378,9 @@ writeRaster(cropland_10km, "data/gaez_v5/GAEZ_1km/GAEZ-V5.LR-LCC.LC02_10km.tif",
 # Read in cropland (keep pasture data as a placeholder
 # in case team decides to use in future versions)
 crop <- 'data/gaez_v5/GAEZ_1km/GAEZ-V5.LR-LCC.LC02_10km.tif'
+pasture <- paste0('data/Ramankutty_2008_cropland/',
+                  'CroplandPastureArea2000_Geotiff/',
+                  'Pasture2000_area.tif')
 crop <- raster(crop)
 pasture <- raster(pasture)
 
@@ -964,8 +967,8 @@ step_10 <- function(rast_final, i) {
 
   writeRaster(rast_final,
               filename  = paste0(
-                'raster_out_forCleanRunTest/farmSize_',
-                # 'raster_out_forPublication/farmSize_agarea_',
+                # 'raster_out_forCleanRunTest/farmSize_',
+                'raster_out_forPublication/farmSize_agarea_',
               format(Sys.time(), "%Y%m%d"), '_', i, '.tif'),
               format    = 'GTiff',
               overwrite = TRUE)
@@ -980,8 +983,8 @@ Step 11: Repeat steps 1-10 100x. Note, 100 runs is illustrative. For more stable
 
 <<>>=
 # i = 1
-# for (i in 1:100) {  # use for full run
-for (i in 1:2) {      # use for test run
+for (i in 1:100) {  # use for full run
+# for (i in 1:2) {      # use for test run
   dat1 <- steps_1_6(df_lwd)
   dat2 <- step_7(dat1)
   dat3 <- step_8(dat2)
@@ -1060,8 +1063,8 @@ tmp_compare %>%
   arrange(desc(diff)) %>%
   print(n = 100)
 
-library(plotly)
-ggplotly(p)
+# library(plotly)
+# ggplotly(p)
 @
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1100,9 +1103,9 @@ Here is one of the 100 farm size maps generated.
 # fts <- list.files(path = 'raster_out_forPublication/',
 fts <- list.files(path = 'raster_out_forCleanRunTest/',
                  pattern = '_1.tif$',
-                 full.names = T)[[1]]
+                 full.names = T)[1]
 fs <- raster(fts)
-# fs_spdf <- as(fs, 'SpatialPixelsDataFrame')
+fs_spdf <- as(fs, 'SpatialPixelsDataFrame')
 # fs <- stack(fts)
 # fs <- brick(fs)
 #
@@ -1112,7 +1115,8 @@ fs <- raster(fts)
 # }
 #
 # fs <- calc(fs, getmode)
-fs_spdf <- as(fs, 'SpatialPixelsDataFrame')
+# writeRaster(fs, "mode_farmsize.tif", overwrite = TRUE)
+# fs_spdf <- as(fs, 'SpatialPixelsDataFrame')
 
 fs_df <- as.data.frame(fs_spdf)
 colnames(fs_df) <- c('value', 'x', 'y')
