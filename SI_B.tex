@@ -1,6 +1,6 @@
 \documentclass{article}
 
-\title{Global Farm Size, Version 1, 2000.}
+\title{Global Farm Size, Version 1, 2000; Augented for FAO SOFA 2025}
 \author{Zia Mehrabi and Vincent Ricciardi}
 \usepackage[margin=2.5 cm]{geometry}
 \usepackage{color}
@@ -39,9 +39,7 @@ This dataset was originally created for the peer-reviewed publication:
 
 Mehrabi, Z., McDowell, M.J., Ricciardi, V. et al. 2020. The global divide in data-driven farming. Nature Sustainability, 4:154–160. https://doi.org/10.1038/s41893-020-00631-0 \cite{Mehrabi}.
 
-Please use the following citation alongside the NASA-SEDAC doi associated with this entry when citing. Note, while only croplands were included in the prior paper, here we include all agricultural lands:
-
-Mehrabi, Z. and V. Ricciardi. 2024. Global Farm Size, Version 1, 2000. Palisades, NY: NASA Socioeconomic Data and Applications Center (SEDAC).
+This is an augmented version for the United Nations Food and Agricultural Organization's (FAO) State of Food and Agriculture Report.
 
 The aim of this document is to create a global map of farm sizes. We do this by merging two currently available sources of information on the distribution of farm sizes across the world: national level data on farm size distributions and subnational data on field size distributions. The resulting map is a dataset of where different sizes of farms are distributed globally. As with the geospatial products on which the map is derived, we caution that this map should not be used for detailed within country-level analysis, but is intended for global assessment studies, where results are typically aggregated at the regional or global level. This document explains the underlying data, pre-processing, and algorithm we developed to create this map. We were driven to create this map as a work that can be built upon and improved as higher resolution and more accurate data become available.
 
@@ -57,7 +55,7 @@ Note, the `renv.lock` file needs to be in the top level of this project's direct
 
 \begin{Schunk}
 \begin{Sinput}
-> # Uncomment during first run
+> # Uncomment during first run if using renv for install
 > # install.packages('renv')
 > # renv::init()
 \end{Sinput}
@@ -85,14 +83,13 @@ For the analysis in this document we will be using the following packages: Sexpr
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Data}
 
-In this analysis, we leverage three key datasets. Lowder, Skoet, and Raney 2016 \cite{Lowder} (Lowder, hereafter) contain farm size distributions (in terms of agricultural area and the number of farms) for 100 countries. Lesiv and Fritz et al. 2019 \cite{Lesiv} (Lesiv, hereafter) contains a crowd-sourced point data of categorical field size classes (ranging from very small to large fields). We use Lesiv’s ordinal field size classes to spatially disaggregate the Lowder farm size classes, using known agricultural area from Ramankutty et al. 2008 \cite{Ramankutty} (Ramankutty, hereafter). Links and access dates to these input data and other ancillary data sets used in our analysis as highlighted below:
+In this analysis, we leverage three key datasets. LINEQ database (forthcoming) (also referred to as Lowder, hereafter, to keep consistent code with the Mehrabi, McDowell, and Ricciardi et al. 2024 paper) contain farm size distributions (in terms of agricultural area and the number of farms) for 100 countries. Lesiv and Fritz et al. 2019 \cite{Lesiv} (Lesiv, hereafter) contains a crowd-sourced point data of categorical field size classes (ranging from very small to large fields). We use Lesiv’s ordinal field size classes to spatially disaggregate the LINEQ farm size classes, using known agricultural area from GAEZ 2025 (also referred to as Ramankutty, hereafter, to keep consistent code with the Mehrabi, McDowell, and Ricciardi et al. 2024 paper). Links and access dates to these input data and other ancillary data sets used in our analysis as highlighted below:
 
 1. Global field size data from Lesiv, retrieved from from http://pure.iiasa.ac.at/id/eprint/15526/ on October 12th, 2018.
 
-2. Country farm size distributions from Lowder, retrieved from \newline
-https://www.sciencedirect.com/science/article/pii/S0305750X15002703 on July 12th, 2018.
+2. Country farm size distributions from LINEQ (please contact author)
 
-3. Global cropland and pastureland from Ramankutty, retrieved from www.earthstat.org on July 12th 2018.
+3. Global cropland and pastureland from GAEZ, retrieved from https://console.cloud.google.com/storage/browser/fao-gismgr-gaez-v5-data/DATA/GAEZ-V5/MAPSET/LR-LCC on April 15th 2025.
 
 4. Country boundaries, retrieved internally in R through \cite{R-rworldmap}.
 
@@ -129,10 +126,124 @@ Lowder's data contains two variables at the national level, the amount of agricu
 
 \begin{Schunk}
 \begin{Sinput}
-> # Load Lowder's distribution dataset
-> lwd <- read.csv('data/lowder/Lowder_2016_dist.csv',
+> # Load LINEQ's distribution dataset
+> lwd <- read.csv('data/lineq/lineq_fs_distributions.csv',
 +                 header = T,
 +                 na.strings = c('','NA'))
+> lwd$Income <- lwd$Region <- NULL
+> ################################################################################
+> # Clean up country names, since lineq database uses the country name from the year of the data (e.g., if the country name changes in a year, the country name is different)
+> world_tmp  <- getMap(resolution = 'low')
+> countries <- data.frame(names = sort(unique(as.character(world_tmp@data[,'ADMIN']))))
+> lwdNames  <- data.frame(names = unique(lwd$Country))
+> lwdNames$names  <- str_trim(lwdNames$names)
+> lwdNames$indata <- lwdNames$names %in% unique(countries$name)
+> # List of names in LINEQ that do not match dataset's names
+> # lwdNames[which(lwdNames$indata == FALSE), ]$names
+> 
+> changeFrom <- c(
++   "Bahamas",
++   "Ceylon",
++   "China, People's Republic of",
++   "Congo",
++   "Congo - Brazzaville",
++   "Congo - Kinshasa",
++   "Côte d'Ivoire",
++   "Czechia",
++   "Czechoslovakia",
++   "Eswatini",
++   "Guadeloupe",
++   "Guinea-Bissau",
++   "Korea, Rep. of",
++   "Korea, Republic of",
++   "Martinique",
++   "Micronesia, Federated States of",
++   "Myanmar (Burma)",
++   "North Macedonia",
++   "Pacific islands (trust territory)",
++   "Palestine",
++   "Republic of Korea",
++   "Réunion",
++   "Russian Federation",
++   "Serbia",
++   "South West Africa",
++   "Southern Rhodesia (European holdings)",
++   "St. Lucia",
++   "St. Vincent & Grenadines",
++   "Tanganyika (commercial holdings only)",
++   "Tanzania",
++   "Timor-Leste",
++   "Trinidad & Tobago",
++   "U.S. Virgin Islands",
++   "United States",
++   "Viet Nam",
++   "Virgin Islands (U.K.)",
++   "Yugoslavia",
++   "Zambia (European holdings)"
++ )
+> changeTo <- c(
++   "The Bahamas",
++   "Sri Lanka",
++   "China",
++   "Republic of the Congo",
++   "Republic of the Congo",
++   "Democratic Republic of the Congo",
++   "Ivory Coast",
++   "Czech Republic",
++   "Czech Republic",
++   "Swaziland",
++   "Guadeloupe",  # Keep as is but now matches
++   "Guinea Bissau",
++   "South Korea",
++   "South Korea",
++   "Martinique",  # Keep as is but now matches
++   "Federated States of Micronesia",
++   "Myanmar",
++   "Macedonia",
++   "Pacific Islands",
++   "West Bank",
++   "South Korea",
++   "Reunion",  # Removed accent
++   "Russia",
++   "Republic of Serbia",
++   "Namibia",
++   "Zimbabwe",
++   "Saint Lucia",
++   "Saint Vincent and the Grenadines",
++   "United Republic of Tanzania",
++   "United Republic of Tanzania",
++   "East Timor",
++   "Trinidad and Tobago",
++   "United States Virgin Islands",
++   "United States of America",
++   "Vietnam",
++   "British Virgin Islands",
++   "Republic of Serbia",
++   "Zambia"
++ )
+> require(plyr)
+> lwd$Country <- mapvalues(str_trim(lwd$Country),
++                          from = changeFrom,
++                          to   = changeTo)
+> # Find which original names map to the same transformed name
+> # original_names <- unique(lwd$Country)
+> # transformed_names <- mapvalues(original_names, from = changeFrom, to = changeTo)
+> # duplicated_mappings <- transformed_names[duplicated(transformed_names)]
+> #
+> # # For each duplicated transformed name, find all original names that map to it
+> # for (dup_name in unique(duplicated_mappings)) {
+> #   cat("Multiple names map to:", dup_name, "\n")
+> #   cat("Original names:", paste(original_names[transformed_names == dup_name], collapse=", "), "\n\n")
+> # }
+> 
+> detach('package:plyr')
+> ################################################################################
+> 
+> # For lineq data, ensure most recent year
+> lwd <- lwd %>%
++   group_by(Country, Holdings..agricultural.area) %>%
++   dplyr::arrange(desc(Census.Year)) %>%
++   slice(1)
 > # Subset only agricultural area
 > lwd <- lwd[which(lwd$Holdings..agricultural.area != 'Holdings'), ]
 > lwd <- lwd[, c(1,5:15)]
@@ -146,16 +257,18 @@ Lowder's data contains two variables at the national level, the amount of agricu
 \end{Sinput}
 \end{Schunk}
 
-Next we need to calculate the cumulative sum per country across Lowder's farm size classes.  To do this we first convert the data from wide to long format, and set classes for countries without data to zero area.
+Next we need to calculate the cumulative sum per country across LINEQ's farm size classes.  To do this we first convert the data from wide to long format, and set classes for countries without data to zero area.
 
 \begin{Schunk}
 \begin{Sinput}
 > lwd <- melt(lwd, id.vars = c('country'))
 > lwd[is.na(lwd)] <- 0
+> # Save an instance of this lwd dataset for later sanity checks
+> lwd_orig <- lwd
 \end{Sinput}
 \end{Schunk}
 
-Then we calculate the proportional agricultural area for each farm size class for each country. We note that Lowder contains some countries without farm size distributions and some countries do not have a distribution for each farm size class, and so we remove those cases here.
+Then we calculate the proportional agricultural area for each farm size class for each country. We note that LINEQ contains some countries without farm size distributions and some countries do not have a distribution for each farm size class, and so we remove those cases here.
 
 \begin{Schunk}
 \begin{Sinput}
@@ -179,42 +292,73 @@ Finally, cast dataframe back into wide form.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Global agricultural area}
 
-We use Ramankutty's 0.083 degree cropland map (crop, hereafter) and pastureland map (pasture, hereafter) as our reference layer of the distribution of agricultural land at the subnational level.  We read in these files here and unionize the crop and pasture maps to create an agricultural land raster (ag, hereafter).
+We use GAEZ's 1 minute resolution cropland map (crop, hereafter) as our reference layer of the distribution of agricultural land at the subnational level.  We read in these files here and aggregate to the 5 minute (10km resolution) by computing the weighted mean of cropland areas while excluding areas with zero cropland. This makes our aggregated values representative of actual cropland areas rather than the entire grid cell (ag, hereafter).
 
 \begin{Schunk}
 \begin{Sinput}
-> # crop <- paste0('data/Ramankutty_2008_cropland/',
-> #                 'CroplandPastureArea2000_Geotiff/',
-> #                 'Cropland2000_5m.tif')
-> #
-> # pasture <- paste0('data/Ramankutty_2008_cropland/',
-> #                   'CroplandPastureArea2000_Geotiff/',
-> #                   'Pasture2000_5m.tif')
-> 
-> crop <- paste0('data/Ramankutty_2008_cropland/',
-+                 'CroplandPastureArea2000_Geotiff/',
-+                 'Cropland2000_area.tif')
+> require(terra)
+> # read data
+> cropland_1km <- 'data/gaez_v5/GAEZ_1km/GAEZ-V5.LR-LCC.LC02.tif'
+> cropland_1km <- rast(cropland_1km)
+> # reprojec tto equal area
+> if (crs(cropland_1km) != "+proj=longlat +datum=WGS84 +no_defs") {
++   cropland_1km <- project(cropland_1km, "+proj=longlat +datum=WGS84 +no_defs")
++ }
+\end{Sinput}
+\begin{Soutput}
+|---------|---------|---------|---------|
+=========================================
+\end{Soutput}
+\begin{Sinput}
+> # mask cells with 0% cropland
+> cropland_1km[cropland_1km == 0] <- NA
+\end{Sinput}
+\begin{Soutput}
+|---------|---------|---------|---------|
+=========================================
+                                          
+
+|---------|---------|---------|---------|
+=========================================
+\end{Soutput}
+\begin{Sinput}
+> # aggregate to the 10km resolution
+> cropland_10km <- aggregate(cropland_1km, fact=10, fun="mean", na.rm = TRUE)
+\end{Sinput}
+\begin{Soutput}
+|---------|---------|---------|---------|
+=========================================
+\end{Soutput}
+\begin{Sinput}
+> # Convert values to a 0 to 1 scale
+> cropland_10km <- cropland_10km / 100
+> # Write raster
+> writeRaster(cropland_10km, "data/gaez_v5/GAEZ_1km/GAEZ-V5.LR-LCC.LC02_10km.tif", overwrite = TRUE)
+> # Read in cropland (keep pasture data as a placeholder
+> # in case team decides to use in future versions)
+> crop <- 'data/gaez_v5/GAEZ_1km/GAEZ-V5.LR-LCC.LC02_10km.tif'
 > pasture <- paste0('data/Ramankutty_2008_cropland/',
 +                   'CroplandPastureArea2000_Geotiff/',
 +                   'Pasture2000_area.tif')
 > crop <- raster(crop)
 > pasture <- raster(pasture)
-> # Here we take a union of crop and pasture areas
-> # Set NA to 0, ensure same origin, find sum
+> # Reset NA to 0 for later computational ease
 > crop_tmp <- crop
 > pasture_tmp <- pasture
 > crop_tmp[is.na(crop_tmp)] <- 0
 > pasture_tmp[is.na(pasture_tmp)] <- 0
 > origin(crop_tmp) <- origin(pasture_tmp) <- c(0.0, 0.0)
-> ag <-mosaic(crop_tmp, pasture_tmp, fun = sum)
+> ag <- mosaic(crop_tmp, pasture_tmp, fun = sum)
 > ag[ag[] == 0] <- NA
+> # use only cropland
+> ag <- crop_tmp
 \end{Sinput}
 \end{Schunk}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Global field sizes}
 
-Here we interpolate the crowd-sourced field size data point data onto Ramankutty's agricultural area data. While the original sampling frame for this field size was on a unionized cropland map, we extend the distribution here in an attempt to better match and account for the inclusion of non-cropland in Lowder's farm size data. We use kk-nearest neighbor (kkNN), a weighted variant of kNN that we use to try to account as best as possible for Lesiv’s sparsely sampled points in some locations, e.g. Africa).
+Here we interpolate the crowd-sourced field size data point data onto GAEZ's agricultural area data. While the original sampling frame for this field size was on a unionized cropland map, we extend the distribution here in an attempt to better match and account for the inclusion of non-cropland in LINEQ's farm size data. We use kk-nearest neighbor (kkNN), a weighted variant of kNN that we use to try to account as best as possible for Lesiv’s sparsely sampled points in some locations, e.g. Africa).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Read in Data}
@@ -280,21 +424,27 @@ We then train the kkNN model using different types of kernels and number of poin
 > fs_train <- data.frame(field_size = fs_clean$fs_verbatim_fac,
 +                        x = st_coordinates(fs_clean)[,1],
 +                        y = st_coordinates(fs_clean)[,2])
+> # fs_train %>% group_by(field_size) %>% summarise(n())  # decently balanced
+> 
 > fs_interp_train <- kknn::train.kknn(field_size ~.,
 +                                     data = fs_train,
-+                                     ks = seq(5,51, 5),
++                                     ks = seq(5, 51, 5),
 +                                     distance = 2,
 +                                     kernel = c("gaussian",
 +                                                "triangular",
 +                                                "rectangular",
 +                                                "epanechnikov",
-+                                                "optimal"),
++                                                "optimal"
++                                                ),
 +                                     kcv = 10)
 \end{Sinput}
 \end{Schunk}
 
 Next we summarize and plot the results of the model fitting. We also plot the error from the
 different models below. We note the minimal misclassification error is 0.43. Crudely, with a balanced dataset of 5 classes you would expect a null misclassification error of 0.8, and so under this special case the best model halves uncertainty in predictions from a random classifier. Future versions improvements to this model may be made through using haversine distance, or identifying ancillary features that do a better job of predicting field size classes. Similarly, using an ordinal response, instead of the nominal response defaulted here, may improve predictions also.
+
+Note, that there is class confusion between the very small and small and very large and large. The overall accuracy is 0.62 but if we collapse classes the overall accuracy is 0.743. The medium field size has the largest misclassification. If we collapse the medium into the larger field sizes then the accuracy is 0.853; conversely if we collapse the medium into the smaller field sizes then the accuracy is 0.845, which suggests there's slightly more confusion with medium and larger field sizes.
+
 
 
 We use the best fitting model parameters to predict the field size classes across the agricultural area grid, and then extract the fitted values and the associated probabilities.
@@ -353,7 +503,8 @@ Here we set each dataset to have an equal area (Eckert IV) at a 8.4 km x 8.4 km 
 \begin{Schunk}
 \begin{Sinput}
 > rast.list.ngb <- list(lesiv, world)
-> rast.list.bil <- list(crop, pasture, ag)
+> # rast.list.bil <- list(crop, pasture, ag)
+> rast.list.bil <- list(ag)
 > resValue <- 8439
 > rast.list.ngb.eq <- lapply(rast.list.ngb, function(x)
 +   projectRaster(
@@ -370,7 +521,8 @@ Here we set each dataset to have an equal area (Eckert IV) at a 8.4 km x 8.4 km 
 +     method = 'bilinear',
 +     over   = TRUE))
 > rast.list <- c(rast.list.ngb.eq, rast.list.bil.eq)  # Combine data
-> names(rast.list) <- c('lesiv', 'world', 'crop', 'pasture', 'ag')
+> # names(rast.list) <- c('lesiv', 'world', 'crop', 'pasture', 'ag')
+> names(rast.list) <- c('lesiv', 'world', 'ag')
 \end{Sinput}
 \end{Schunk}
 
@@ -422,8 +574,8 @@ We now convert the data in the raster stack into a dataframe, which we will use 
 Set any crop, pasture value under 0.01 to NA, to account for sparse agricultural areas.
 \begin{Schunk}
 \begin{Sinput}
-> df$crop <- ifelse(df$crop >= 0.01, df$crop, NA)
-> df$pasture <- ifelse(df$pasture >= 0.01, df$pasture, NA)
+> # df$crop <- ifelse(df$crop >= 0.01, df$crop, NA)
+> # df$pasture <- ifelse(df$pasture >= 0.01, df$pasture, NA)
 > df$ag <- ifelse(df$ag >= 0.01, df$ag, NA)
 \end{Sinput}
 \end{Schunk}
@@ -440,45 +592,6 @@ Next we add back in the country names (presently they are only country ISO3 IDs)
 > matched    <- lookup[match(df$world, lookup$V2), ]
 > df$ISO3    <- matched[[1]]
 > df$country <- matched[[3]]
-\end{Sinput}
-\end{Schunk}
-
-We then match Lowder's country names to the global country boundary country names.
-\begin{Schunk}
-\begin{Sinput}
-> countries <- data.frame(names = sort(unique(df$country)))
-> lwdNames  <- data.frame(names = unique(lwd$country))
-> lwdNames$names  <- str_trim(lwdNames$names)
-> lwdNames$indata <- lwdNames$names %in% unique(countries$name)
-> # List of names in lowder that do not match dataset's names
-> # note Guadeloupe, Martinique, Reunion has no data
-> # lwdNames[which(lwdNames$indata == FALSE), ]
-> 
-> changeFrom <- c('Korea Rep. of',
-+                 "Lao People's Democratic Republic",
-+                 'Viet Nam',
-+                 'Serbia',
-+                 'Bahamas',
-+                 'Venezuela (Bolivarian Republic of)',
-+                 'St. Kitts & Nevis',
-+                 'Iran (Islamic Republic of)',
-+                 "Côte d'Ivoire",
-+                 'Virgin Islands United States')
-> changeTo   <- c('South Korea',
-+                 'Laos',
-+                 'Vietnam',
-+                 'Republic of Serbia',
-+                 'The Bahamas',
-+                 'Venezuela',
-+                 'Saint Kitts and Nevis',
-+                 'Iran',
-+                 'Ivory Coast',
-+                 'United States Virgin Islands')
-> require(plyr)
-> lwd$country <- mapvalues(str_trim(lwd$country),
-+                          from = changeFrom,
-+                          to   = changeTo)
-> detach('package:plyr')
 \end{Sinput}
 \end{Schunk}
 
@@ -507,11 +620,11 @@ Here are the steps we used to create the farm size map, with uncertainty at the 
   \item Group pixels by country
   \item Assign pseudo-random number to pixels
   \item Reorder the pixels in a nested fashion: first by interpolated field size classes, and then by the pseudo-random numbers
-  \item Compute pixel wise agricultural area from Ramankutty
-  \item Compute cumulative agricultural area from Ramankutty
-  \item Divide cumulative sum of agricultural area by total area in each country to get cumulative proportional sums of agricultural area from Ramankutty
+  \item Compute pixel wise agricultural area from GAEZ
+  \item Compute cumulative agricultural area from GAEZ
+  \item Divide cumulative sum of agricultural area by total area in each country to get cumulative proportional sums of agricultural area from GAEZ
   \item Assign pixel fields sizes to farm size classes by matching the cumulative proportional agricultural area from Lowder to the cumulative proportional agricultural area for interpolated Lesiv product  where pixels are ordered from smallest to largest fields
-  \item For countries not in Lowder, hard code farm size based on field sizes.
+  \item For countries not in LINEQ, hard code farm size based on field sizes.
   \item Convert result to a raster
   \item Save raster
   \item Iterate steps 1 to 10 100x
@@ -536,10 +649,10 @@ Steps 1 to 6 are written below.
 +     mutate(pseudorandom = sample(1:n(), n(), replace = F))  %>%
 +     arrange(country, lesiv, pseudorandom) %>%
 +     group_by(country) %>%
-+     mutate(crop = crop * resValue^2 * 0.0001,       # new
-+            pasture = pasture * resValue^2 * 0.0001, # new
-+            ag = crop + pasture,                     # new
-+            ag_area = ag * resValue^2 * 0.0001, # original was this line only
++     mutate(#crop = crop * resValue^2 * 0.0001,
++            # pasture = pasture * resValue^2 * 0.0001,
++            # ag = crop + pasture,
++            ag_area = ag * resValue^2 * 0.0001,
 +            cumsum_area = cumsumSkipNA(ag_area),
 +            prop_sums = ifelse(
 +                is.na(cumsum_area),
@@ -692,6 +805,7 @@ Step 9: Generate farm size raster
 +   # Return:
 +   #   raster object
 + 
++   # Extract raster values from data
 +   if (x == 'farm_final') {
 +     dat$rasterValues <- as.numeric(
 +       str_split_fixed(dat[[x]], '_', 2)[, 2])
@@ -700,11 +814,28 @@ Step 9: Generate farm size raster
 +   }
 + 
 +   # Clip to cropland area
-+   dat$rasterValues <- ifelse(is.na(dat$crop), NA, dat$rasterValues)
++   # dat$rasterValues <- ifelse(is.na(dat$crop), NA, dat$rasterValues)
++   dat$rasterValues <- ifelse(is.na(dat$ag), NA, dat$rasterValues)
 + 
++   # Sort by ID for consistency
 +   dat <- dat[order(dat$ID), ]
++ 
++   # Get the base raster
 +   rast_final <- rast.all@layers[[1]]
-+   rast_final <- setValues(rast_final, dat$rasterValues, dat$ID)
++ 
++   # Create a vector of NAs the same length as the number of cells in the raster
++   all_values <- rep(NA, ncell(rast_final))
++ 
++   # Filter for valid data points
++   valid_idx <- !is.na(dat$ID) & !is.na(dat$rasterValues) & dat$ID <= ncell(rast_final)
++ 
++   # Set values only at the specified valid indices
++   if(sum(valid_idx) > 0) {
++     all_values[dat$ID[valid_idx]] <- dat$rasterValues[valid_idx]
++   }
++ 
++   # Set all values at once
++   rast_final <- setValues(rast_final, all_values)
 + 
 +   return(rast_final)
 + }
@@ -725,8 +856,8 @@ Step 10: Write raster
 + 
 +   writeRaster(rast_final,
 +               filename  = paste0(
-+                 'raster_out_forCleanRunTest/farmSize_',
-+                 # 'raster_out_forPublication/farmSize_agarea_',
++                 # 'raster_out_forCleanRunTest/farmSize_',
++                 'raster_out_forPublication/farmSize_agarea_',
 +               format(Sys.time(), "%Y%m%d"), '_', i, '.tif'),
 +               format    = 'GTiff',
 +               overwrite = TRUE)
@@ -743,8 +874,8 @@ Step 11: Repeat steps 1-10 100x. Note, 100 runs is illustrative. For more stable
 \begin{Schunk}
 \begin{Sinput}
 > # i = 1
-> # for (i in 1:100) {  # use for full run
-> for (i in 1:2) {      # use for test run
+> for (i in 1:100) {  # use for full run
++ # for (i in 1:2) {      # use for test run
 +   dat1 <- steps_1_6(df_lwd)
 +   dat2 <- step_7(dat1)
 +   dat3 <- step_8(dat2)
@@ -760,10 +891,46 @@ Step 11: Repeat steps 1-10 100x. Note, 100 runs is illustrative. For more stable
 
 We sanity check that the proportional farm size distributions per country equals Lowder’s. We use one run as an example. As we can see the data is very close to the one-to-one line (but not exactly as would be expected based on small differences in row matching in our algorithm). Since the sampling scheme randomly shuffles the data, this plot will be slightly different for each sample.
 
+\begin{Schunk}
+\begin{Soutput}
+# A tibble: 25 × 5
+   country                          variable  value.xp value.yp   diff
+   <chr>                            <fct>        <dbl>    <dbl>  <dbl>
+ 1 Seychelles                       1000_5000   0.494   0       0.494 
+ 2 Singapore                        50_100      0.461   0.00347 0.458 
+ 3 American Samoa                   200_500     0.506   0.171   0.335 
+ 4 Saint Vincent and the Grenadines 100_200     0.329   0.0551  0.274 
+ 5 Guam                             1000_5000   0.231   0       0.231 
+ 6 Bahrain                          50_100      0.256   0.0407  0.215 
+ 7 Saint Kitts and Nevis            1000_5000   0.200   0       0.200 
+ 8 Antigua and Barbuda              10_20       0.208   0.0287  0.180 
+ 9 Barbados                         50_100      0.280   0.117   0.163 
+10 Saint Kitts and Nevis            5_10        0.164   0.0106  0.153 
+11 Grenada                          200_500     0.215   0.0648  0.150 
+12 Saint Lucia                      100_200     0.163   0.0334  0.129 
+13 United States Virgin Islands     50_100      0.235   0.111   0.124 
+14 Federated States of Micronesia   100_200     0.322   0.198   0.124 
+15 Malta                            5_10        0.281   0.183   0.0977
+16 Grenada                          20_50       0.230   0.134   0.0954
+17 Malta                            1_2         0.442   0.348   0.0940
+18 United States Virgin Islands     5_10        0.241   0.153   0.0880
+19 Federated States of Micronesia   5_10        0.141   0.0690  0.0725
+20 Cyprus                           100_200     0.277   0.207   0.0693
+21 Dominica                         1000_5000   0.0674  0       0.0674
+22 Saint Lucia                      1000_5000   0.0940  0.0311  0.0629
+23 Niue                             20_50       0.342   0.288   0.0545
+24 Kuwait                           100_200     0.126   0.0718  0.0538
+25 Brunei                           200_500     0.0788  0.0276  0.0512
+\end{Soutput}
+\end{Schunk}
 \includegraphics{SI_B-finalsanitycheck}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{ESDA Checks}
 
+We want to understand which countries/farms sizes are systematically different than the original farm size distribution data
 
+\includegraphics{SI_B-esdacheck}
 
 \newpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -771,4 +938,70 @@ We sanity check that the proportional farm size distributions per country equals
 \subsection{Final Output}
 
 Here is one of the 100 farm size maps generated.
+We take the mode of all farm size maps and apply a simple spatial smoother.
 
+\includegraphics{SI_B-finalmap}
+
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Session information}
+
+\begin{Schunk}
+\begin{Sinput}
+> sessionInfo()
+\end{Sinput}
+\begin{Soutput}
+R version 4.4.3 (2025-02-28)
+Platform: aarch64-apple-darwin20
+Running under: macOS Sequoia 15.1.1
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/lib/libRblas.0.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.0
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+time zone: America/Los_Angeles
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] zoo_1.8-12        viridis_0.6.5     viridisLite_0.4.2 lubridate_1.9.3  
+ [5] forcats_1.0.0     stringr_1.5.1     dplyr_1.1.4       purrr_1.0.2      
+ [9] readr_2.1.5       tidyr_1.3.1       tibble_3.2.1      ggplot2_3.5.1    
+[13] tidyverse_2.0.0   terra_1.8-42      sf_1.0-20         rworldmap_1.3-8  
+[17] reshape2_1.4.4    raster_3.6-32     sp_2.2-0          kknn_1.3.1       
+[21] magrittr_2.0.3    lintr_3.2.0       leaflet_2.2.2     hablar_0.3.2     
+[25] gmodels_2.19.1    ggthemes_5.1.0    foreach_1.5.2     data.table_1.16.2
+[29] renv_1.1.4        formatR_1.14      printr_0.3        knitr_1.49       
+
+loaded via a namespace (and not attached):
+ [1] tidyselect_1.2.1   farver_2.1.2       fields_16.3.1      fastmap_1.2.0     
+ [5] lazyeval_0.2.2     rex_1.2.1          digest_0.6.37      dotCall64_1.2     
+ [9] timechange_0.3.0   lifecycle_1.0.4    gdata_3.0.1        compiler_4.4.3    
+[13] rlang_1.1.4        tools_4.4.3        igraph_2.1.4       utf8_1.2.4        
+[17] labeling_0.4.3     htmlwidgets_1.6.4  classInt_0.4-11    RColorBrewer_1.1-3
+[21] plyr_1.8.9         xml2_1.3.6         KernSmooth_2.23-26 withr_3.0.2       
+[25] grid_4.4.3         fansi_1.0.6        e1071_1.7-16       colorspace_2.1-1  
+[29] scales_1.3.0       gtools_3.9.5       iterators_1.0.14   MASS_7.3-64       
+[33] cli_3.6.3          generics_0.1.3     rstudioapi_0.17.1  tzdb_0.4.0        
+[37] DBI_1.2.3          proxy_0.4-27       maps_3.4.2.1       vctrs_0.6.5       
+[41] Matrix_1.7-2       hms_1.1.3          crosstalk_1.2.1    units_0.8-7       
+[45] glue_1.8.0         spam_2.11-1        codetools_0.2-20   stringi_1.8.4     
+[49] gtable_0.3.6       munsell_0.5.1      pillar_1.9.0       htmltools_0.5.8.1 
+[53] R6_2.5.1           evaluate_1.0.1     lattice_0.22-6     backports_1.5.0   
+[57] class_7.3-23       Rcpp_1.0.14        gridExtra_2.3      xfun_0.49         
+[61] pkgconfig_2.0.3   
+\end{Soutput}
+\end{Schunk}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\printbibliography[heading=bibintoc]
+
+\end{document}

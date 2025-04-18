@@ -1097,26 +1097,28 @@ tmp_compare %>%
 \subsection{Final Output}
 
 Here is one of the 100 farm size maps generated.
+We take the mode of all farm size maps and apply a simple spatial smoother.
 
 <<finalmap, fig.cap='Example map showing the dominant farm size (ha) per pixel', out.width='0.6\\linewidth', fig.height=5, fig.width=7, size='footnotesize', echo=F, fig=T>>=
 
-# fts <- list.files(path = 'raster_out_forPublication/',
-fts <- list.files(path = 'raster_out_forCleanRunTest/',
-                 pattern = '_1.tif$',
-                 full.names = T)[1]
-fs <- raster(fts)
-fs_spdf <- as(fs, 'SpatialPixelsDataFrame')
-# fs <- stack(fts)
-# fs <- brick(fs)
-#
-# getmode <- function(v) {
-#   uniqv <- unique(v)
-#   uniqv[which.max(tabulate(match(v, uniqv)))]
-# }
-#
-# fs <- calc(fs, getmode)
-# writeRaster(fs, "mode_farmsize.tif", overwrite = TRUE)
+fts <- list.files(path = 'raster_out_forPublication/',
+# fts <- list.files(path = 'raster_out_forCleanRunTest/',
+                 # pattern = '_1.tif$',
+                 full.names = T)
+# fs <- raster(fts)
 # fs_spdf <- as(fs, 'SpatialPixelsDataFrame')
+fs <- stack(fts)
+fs <- brick(fs)
+
+getmode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
+fs <- calc(fs, getmode)
+fs <- focal(fs, matrix(1,3,3), modal)
+writeRaster(fs, "mode_farmsize.tif", overwrite = TRUE)
+fs_spdf <- as(fs, 'SpatialPixelsDataFrame')
 
 fs_df <- as.data.frame(fs_spdf)
 colnames(fs_df) <- c('value', 'x', 'y')
