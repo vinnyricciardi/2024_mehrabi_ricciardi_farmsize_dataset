@@ -1,0 +1,363 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.2 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated as
+% required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+\datalist[entry]{none/global//global/global}
+  \entry{Mehrabi}{article}{}
+    \name{author}{9}{}{%
+      {{hash=MZ}{%
+         family={Mehrabi},
+         familyi={M\bibinitperiod},
+         given={Zia},
+         giveni={Z\bibinitperiod},
+      }}%
+      {{hash=MMJ}{%
+         family={McDowell},
+         familyi={M\bibinitperiod},
+         given={Mollie\bibnamedelima J.},
+         giveni={M\bibinitperiod\bibinitdelim J\bibinitperiod},
+      }}%
+      {{hash=RV}{%
+         family={Ricciardi},
+         familyi={R\bibinitperiod},
+         given={Vincent},
+         giveni={V\bibinitperiod},
+      }}%
+      {{hash=LC}{%
+         family={Levers},
+         familyi={L\bibinitperiod},
+         given={Christian},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=MJD}{%
+         family={Martinez},
+         familyi={M\bibinitperiod},
+         given={Juan\bibnamedelima Diego},
+         giveni={J\bibinitperiod\bibinitdelim D\bibinitperiod},
+      }}%
+      {{hash=MN}{%
+         family={Mehrabi},
+         familyi={M\bibinitperiod},
+         given={Natascha},
+         giveni={N\bibinitperiod},
+      }}%
+      {{hash=WH}{%
+         family={Wittman},
+         familyi={W\bibinitperiod},
+         given={Hannah},
+         giveni={H\bibinitperiod},
+      }}%
+      {{hash=RN}{%
+         family={Ramankutty},
+         familyi={R\bibinitperiod},
+         given={Navin},
+         giveni={N\bibinitperiod},
+      }}%
+      {{hash=JA}{%
+         family={Jarvis},
+         familyi={J\bibinitperiod},
+         given={Andy},
+         giveni={A\bibinitperiod},
+      }}%
+    }
+    \keyw{https://doi.org/10.1038/s41893-020-00631-0, doi:10.103}
+    \strng{namehash}{MZ+1}
+    \strng{fullhash}{MZMMJRVLCMJDMNWHRNJA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1038/s41893-020-00631-0
+    \endverb
+    \field{number}{November 2020}
+    \field{pages}{154\bibrangedash 160}
+    \field{title}{{The global divide in data-driven farming}}
+    \field{volume}{4}
+    \field{year}{2020}
+  \endentry
+
+  \entry{R-renv}{manual}{}
+    \name{author}{2}{}{%
+      {{hash=UK}{%
+         family={Ushey},
+         familyi={U\bibinitperiod},
+         given={Kevin},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=WH}{%
+         family={Wickham},
+         familyi={W\bibinitperiod},
+         given={Hadley},
+         giveni={H\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{UKWH1}
+    \strng{fullhash}{UKWH1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{note}{R package version 1.0.3}
+    \field{title}{renv: Project Environments}
+    \verb{url}
+    \verb https://CRAN.R-project.org/package=renv
+    \endverb
+    \field{year}{2023}
+  \endentry
+
+  \entry{Lesiv}{article}{}
+    \name{author}{33}{}{%
+      {{hash=LM}{%
+         family={Lesiv},
+         familyi={L\bibinitperiod},
+         given={Myroslava},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=LBJC}{%
+         family={Laso\bibnamedelima Bayas},
+         familyi={L\bibinitperiod\bibinitdelim B\bibinitperiod},
+         given={Juan\bibnamedelima Carlos},
+         giveni={J\bibinitperiod\bibinitdelim C\bibinitperiod},
+      }}%
+      {{hash=SL}{%
+         family={See},
+         familyi={S\bibinitperiod},
+         given={Linda},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=DM}{%
+         family={Duerauer},
+         familyi={D\bibinitperiod},
+         given={Martina},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=DD}{%
+         family={Dahlia},
+         familyi={D\bibinitperiod},
+         given={Domian},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=DN}{%
+         family={Durando},
+         familyi={D\bibinitperiod},
+         given={Neal},
+         giveni={N\bibinitperiod},
+      }}%
+      {{hash=HR}{%
+         family={Hazarika},
+         familyi={H\bibinitperiod},
+         given={Rubul},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=KSP}{%
+         family={Kumar\bibnamedelima Sahariah},
+         familyi={K\bibinitperiod\bibinitdelim S\bibinitperiod},
+         given={Parag},
+         giveni={P\bibinitperiod},
+      }}%
+      {{hash=VM}{%
+         family={Vakolyuk},
+         familyi={V\bibinitperiod},
+         given={Mar'yana},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=BV}{%
+         family={Blyshchyk},
+         familyi={B\bibinitperiod},
+         given={Volodymyr},
+         giveni={V\bibinitperiod},
+      }}%
+      {{hash=BA}{%
+         family={Bilous},
+         familyi={B\bibinitperiod},
+         given={Andrii},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=PHA}{%
+         family={Perez-Hoyos},
+         familyi={P\bibinithyphendelim H\bibinitperiod},
+         given={Ana},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=GS}{%
+         family={Gengler},
+         familyi={G\bibinitperiod},
+         given={Sarah},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=PR}{%
+         family={Prestele},
+         familyi={P\bibinitperiod},
+         given={Reinhard},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=BS}{%
+         family={Bilous},
+         familyi={B\bibinitperiod},
+         given={Svitlana},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=AIuH}{%
+         family={Akhtar},
+         familyi={A\bibinitperiod},
+         given={Ibrar ul\bibnamedelima Hassan},
+         giveni={I\bibinitperiod\bibinitdelim u\bibinitperiod\bibinitdelim
+  H\bibinitperiod},
+      }}%
+      {{hash=SK}{%
+         family={Singha},
+         familyi={S\bibinitperiod},
+         given={Kuleswar},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=CSB}{%
+         family={Choudhury},
+         familyi={C\bibinitperiod},
+         given={Sochin\bibnamedelima Boro},
+         giveni={S\bibinitperiod\bibinitdelim B\bibinitperiod},
+      }}%
+      {{hash=CT}{%
+         family={Chetri},
+         familyi={C\bibinitperiod},
+         given={Tilok},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=Mi}{%
+         family={Malek},
+         familyi={M\bibinitperiod},
+         given={?iga},
+         giveni={i\bibinitperiod},
+      }}%
+      {{hash=BK}{%
+         family={Bungnamei},
+         familyi={B\bibinitperiod},
+         given={Khangsembou},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=SA}{%
+         family={Saikia},
+         familyi={S\bibinitperiod},
+         given={Anup},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=SD}{%
+         family={Sahariah},
+         familyi={S\bibinitperiod},
+         given={Dhrubajyoti},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=NW}{%
+         family={Narzary},
+         familyi={N\bibinitperiod},
+         given={William},
+         giveni={W\bibinitperiod},
+      }}%
+      {{hash=DO}{%
+         family={Danylo},
+         familyi={D\bibinitperiod},
+         given={Olha},
+         giveni={O\bibinitperiod},
+      }}%
+      {{hash=ST}{%
+         family={Sturn},
+         familyi={S\bibinitperiod},
+         given={Tobias},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=KM}{%
+         family={Karner},
+         familyi={K\bibinitperiod},
+         given={Mathias},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=MI}{%
+         family={McCallum},
+         familyi={M\bibinitperiod},
+         given={Ian},
+         giveni={I\bibinitperiod},
+      }}%
+      {{hash=SD}{%
+         family={Schepaschenko},
+         familyi={S\bibinitperiod},
+         given={Dmitry},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=ME}{%
+         family={Moltchanova},
+         familyi={M\bibinitperiod},
+         given={Elena},
+         giveni={E\bibinitperiod},
+      }}%
+      {{hash=FD}{%
+         family={Fraisl},
+         familyi={F\bibinitperiod},
+         given={Dilek},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=MI}{%
+         family={Moorthy},
+         familyi={M\bibinitperiod},
+         given={Inian},
+         giveni={I\bibinitperiod},
+      }}%
+      {{hash=FS}{%
+         family={Fritz},
+         familyi={F\bibinitperiod},
+         given={Steffen},
+         giveni={S\bibinitperiod},
+      }}%
+    }
+    \keyw{crowdsourcing, environmental changes, field size, food security,
+  visual interpretation}
+    \strng{namehash}{LM+1}
+  \strng{fullhash}{LMLBJCSLDMDDDNHRKSPVMBVBAPHAGSPRBSAIuHSKCSBCTMiBKSASDNWDOSTKMMISDMEFDMIFS1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1111/gcb.14492
+    \endverb
+    \verb{eprint}
+    \verb https://onlinelibrary.wiley.com/doi/pdf/10.1111/gcb.14492
+    \endverb
+    \field{number}{1}
+    \field{pages}{174\bibrangedash 186}
+    \field{title}{Estimating the global distribution of field size using
+  crowdsourcing}
+    \verb{url}
+    \verb https://onlinelibrary.wiley.com/doi/abs/10.1111/gcb.14492
+    \endverb
+    \field{volume}{25}
+    \field{journaltitle}{Global Change Biology}
+    \field{year}{2019}
+  \endentry
+
+  \entry{R-rworldmap}{manual}{}
+    \name{author}{1}{}{%
+      {{hash=SA}{%
+         family={South},
+         familyi={S\bibinitperiod},
+         given={Andy},
+         giveni={A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{SA1}
+    \strng{fullhash}{SA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{note}{https://github.com/AndySouth/rworldmap/}
+    \field{title}{rworldmap: Mapping Global Data}
+    \field{year}{2016}
+  \endentry
+\enddatalist
+\endinput

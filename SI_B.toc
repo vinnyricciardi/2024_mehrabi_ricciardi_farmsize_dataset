@@ -1,0 +1,23 @@
+\contentsline {section}{\numberline {1}Aim of document}{2}{section.1}%
+\contentsline {section}{\numberline {2}Reproducibility}{2}{section.2}%
+\contentsline {section}{\numberline {3}Data}{2}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Country boundaries}{3}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Country farm size distributions}{3}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Global agricultural area}{6}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Global field sizes}{7}{subsection.3.4}%
+\contentsline {subsubsection}{\numberline {3.4.1}Read in Data}{7}{subsubsection.3.4.1}%
+\contentsline {subsubsection}{\numberline {3.4.2}Pre-process Data}{7}{subsubsection.3.4.2}%
+\contentsline {subsubsection}{\numberline {3.4.3}Interpolate}{8}{subsubsection.3.4.3}%
+\contentsline {subsubsection}{\numberline {3.4.4}Rasterize}{9}{subsubsection.3.4.4}%
+\contentsline {section}{\numberline {4}Create common dataframe}{9}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Convert to equal area}{9}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Set extents}{10}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Create stack}{10}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Finalize data set}{10}{subsection.4.4}%
+\contentsline {section}{\numberline {5}Match Field Sizes to Farm Sizes}{12}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Algorithm}{12}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Resampled Results}{16}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Sanity Check}{16}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}ESDA Checks}{17}{subsection.5.4}%
+\contentsline {subsection}{\numberline {5.5}Final Output}{19}{subsection.5.5}%
+\contentsline {section}{References}{21}{section*.3}%
